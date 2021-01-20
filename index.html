@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./three.js"></script>
+    <script src="./WebGL.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <script src="./stats.min.js"></script>
+    <script src="./initThree.js"></script>
+    <script src="./clickline.js"></script>
+    <title>init</title>
+    <style>
+      #three {
+        width: 100vw;
+        height: 100vh;
+        border: 3px solid #dddddd;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="three"></div>
+  </body>
+  <script>
+    // 天天写new renderer, scene, camera 太麻烦了  封装成一个init方法
+    // @Param number 渲染的宽度
+    // @Param number 渲染的高度
+    // @Param blooen 是否显示坐标系
+    // @Param blooen 是否显示渲染帧率
+    init(window.innerWidth, window.innerHeight, true, true);
+    lineInit();
+    // 定义材质
+    var geometry = new THREE.PlaneBufferGeometry(500, 500);
+    var material = new THREE.MeshPhongMaterial({
+      color: 0x999999,
+      depthWrite: false,
+    });
+    // 添加地面
+    var ground = new THREE.Mesh(geometry, material);
+    ground.position.set(0, 0, 0);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+    // 地面网格
+    var grid = new THREE.GridHelper(500, 100, 0x000000, 0x000000);
+    //   grid.position.y = -5;
+    grid.material.opacity = 0.2;
+    grid.material.transparent = true;
+    scene.add(grid);
+    // 添加一个锥体
+    var geometry = new THREE.ConeBufferGeometry(3, 10, 60);
+    var material = new THREE.MeshPhysicalMaterial({ color: 0x595fff });
+    var cone = new THREE.Mesh(geometry, material);
+    cone.position.set(-5, 5, 0);
+    cone.name = "锥体";
+    scene.add(cone);
+    // 添加个多面体
+    var geometry = new THREE.IcosahedronGeometry(3, 0);
+    var material = new THREE.MeshPhysicalMaterial({ color: 0x595fff });
+    var cone = new THREE.Mesh(geometry, material);
+    cone.position.set(5, 5, 0);
+    cone.name = "多面体";
+    scene.add(cone);
+    // 添加一个环
+    var geometry = new THREE.TorusBufferGeometry(6, 1, 15, 30);
+    var material = new THREE.MeshPhysicalMaterial({ color: 0x595fff });
+    var torus = new THREE.Mesh(geometry, material);
+    torus.position.set(0, 10, -20);
+    torus.name = "环";
+    scene.add(torus);
+
+    // 添加点击事件
+    function onMouseDblclick(event) {
+      // 获取 raycaster 和所有模型相交的数组，其中的元素按照距离排序，越近的越靠前
+      var intersects = getIntersects(event);
+      console.log(intersects);
+      // 获取选中最近的 Mesh 对象
+      if (
+        intersects.length != 0 &&
+        intersects[0].object instanceof THREE.Mesh
+      ) {
+        selectObject = intersects[0].object;
+        alert(selectObject.name);
+      } else {
+        alert("未选中 Mesh!");
+      }
+    }
+    // 获取与射线相交的对象数组
+    function getIntersects(event) {
+      event.preventDefault();
+      // console.log("event.clientX:" + event.clientX);
+      // console.log("event.clientY:" + event.clientY);
+      // 声明 raycaster 和 mouse 变量
+      var raycaster = new THREE.Raycaster();
+      var mouse = new THREE.Vector2();
+      // 通过鼠标点击位置,计算出 raycaster 所需点的位置,以屏幕为中心点,范围 -1 到 1
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      //通过鼠标点击的位置(二维坐标)和当前相机的矩阵计算出射线位置
+      raycaster.setFromCamera(mouse, camera);
+      // 获取与射线相交的对象数组，其中的元素按照距离排序，越近的越靠前
+      var intersects = raycaster.intersectObjects(scene.children);
+      //返回选中的对象
+      return intersects;
+    }
+
+    addEventListener("dblclick", onMouseDblclick, false);
+
+    function render() {
+      // 循环动画
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+      stats.update();
+    }
+    render();
+  </script>
+</html>
