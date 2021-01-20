@@ -41,12 +41,14 @@
     ground.position.set(0, 0, 0);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
+    ground.name = "地板";
     scene.add(ground);
     // 地面网格
     var grid = new THREE.GridHelper(500, 100, 0x000000, 0x000000);
     //   grid.position.y = -5;
     grid.material.opacity = 0.2;
     grid.material.transparent = true;
+    grid.name = "地板";
     scene.add(grid);
     // 添加一个锥体
     var geometry = new THREE.ConeBufferGeometry(3, 10, 60);
